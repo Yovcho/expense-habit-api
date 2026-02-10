@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    container_name: ehf_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ehf
+      POSTGRES_PASSWORD: ehf_password
+      POSTGRES_DB: ehf_db
+    volumes:
+      - ehf_pg:/var/lib/postgresql/data
+volumes:
+  ehf_pg:
