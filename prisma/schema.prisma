@@ -11,10 +11,49 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum HabitFrequency {
+  DAILY
+  WEEKLY
+}
+
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  expenses     Expense[]
+  habits       Habit[]
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  amountCents Int
+  currency  String   @default("EUR")
+  category  String
+  occurredAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, occurredAt])
+  @@index([userId, category])
+}
+
+model Habit {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  frequency   HabitFrequency @default(DAILY)
+  targetCount Int           @default(1)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId, isActive])
+  @@index([userId, frequency])
 }
