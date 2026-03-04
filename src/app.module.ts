@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ExpensesModule } from './modules/expenses/expenses.module';
 import { HabitsModule } from './modules/habits/habits.module';
 import { CheckinsModule } from './modules/checkins/checkins.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CheckinsModule } from './modules/checkins/checkins.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    CategoriesModule,
     ExpensesModule,
     HabitsModule,
     CheckinsModule,

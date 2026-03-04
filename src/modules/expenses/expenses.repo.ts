@@ -12,7 +12,7 @@ export class ExpensesRepo {
       title: string;
       amountCents: number;
       currency?: string;
-      category: string;
+      categoryId: string;
       occurredAt: Date;
     },
   ): Promise<Expense> {
@@ -22,7 +22,7 @@ export class ExpensesRepo {
         title: data.title,
         amountCents: data.amountCents,
         currency: data.currency || 'EUR',
-        category: data.category,
+        categoryId: data.categoryId,
         occurredAt: data.occurredAt,
       },
     });
@@ -31,6 +31,7 @@ export class ExpensesRepo {
   listForUser(userId: string): Promise<Expense[]> {
     return this.prisma.expense.findMany({
       where: { userId },
+      include: { category: true },
       orderBy: { occurredAt: 'desc' },
     });
   }
@@ -41,6 +42,7 @@ export class ExpensesRepo {
         id,
         userId,
       },
+      include: { category: true },
     });
   }
 
@@ -50,19 +52,21 @@ export class ExpensesRepo {
       title: string;
       amountCents: number;
       currency: string;
-      category: string;
+      categoryId: string;
       occurredAt: Date;
     }>,
   ): Promise<Expense> {
     return this.prisma.expense.update({
       where: { id },
       data,
+      include: { category: true },
     });
   }
 
   deleteById(id: string): Promise<Expense> {
     return this.prisma.expense.delete({
       where: { id },
+      include: { category: true },
     });
   }
 }

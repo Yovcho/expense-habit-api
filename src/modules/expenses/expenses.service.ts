@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ExpensesRepo } from './expenses.repo';
+import { CategoriesService } from '../categories/categories.service';
 import type {
   CreateExpenseRequest,
   UpdateExpenseRequest,
@@ -8,14 +9,23 @@ import { Expense } from '@prisma/client';
 
 @Injectable()
 export class ExpensesService {
-  constructor(private repo: ExpensesRepo) {}
+  constructor(
+    private repo: ExpensesRepo,
+    private categoriesService: CategoriesService,
+  ) {}
 
-  create(userId: string, dto: CreateExpenseRequest): Promise<Expense> {
+  async create(userId: string, dto: CreateExpenseRequest): Promise<Expense> {
+    // Validate that the category exists and is accessible to user
+    await this.categoriesService.validateCategoryForUser(
+      userId,
+      dto.categoryId,
+    );
+
     return this.repo.createForUser(userId, {
       title: dto.title,
       amountCents: dto.amountCents,
       currency: dto.currency,
-      category: dto.category,
+      categoryId: dto.categoryId,
       occurredAt: new Date(dto.occurredAt),
     });
   }
@@ -43,19 +53,27 @@ export class ExpensesService {
       throw new NotFoundException('Expense not found');
     }
 
+    // Validate categoryId if provided
+    if (dto.categoryId !== undefined) {
+      await this.categoriesService.validateCategoryForUser(
+        userId,
+        dto.categoryId,
+      );
+    }
+
     // Build update data
     const updateData: Partial<{
       title: string;
       amountCents: number;
       currency: string;
-      category: string;
+      categoryId: string;
       occurredAt: Date;
     }> = {};
 
     if (dto.title !== undefined) updateData.title = dto.title;
     if (dto.amountCents !== undefined) updateData.amountCents = dto.amountCents;
     if (dto.currency !== undefined) updateData.currency = dto.currency;
-    if (dto.category !== undefined) updateData.category = dto.category;
+    if (dto.categoryId !== undefined) updateData.categoryId = dto.categoryId;
     if (dto.occurredAt !== undefined)
       updateData.occurredAt = new Date(dto.occurredAt);
 

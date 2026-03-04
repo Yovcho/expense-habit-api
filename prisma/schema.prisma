@@ -18,30 +18,32 @@ enum HabitFrequency {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
+  id           String       @id @default(cuid())
+  email        String       @unique
   passwordHash String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   expenses     Expense[]
   habits       Habit[]
   checkIns     HabitCheckIn[]
+  categories   Category[]
 }
 
 model Expense {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
   amountCents Int
-  currency  String   @default("EUR")
-  category  String
+  currency   String   @default("EUR")
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   occurredAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([userId, occurredAt])
-  @@index([userId, category])
+  @@index([userId, categoryId])
 }
 
 model Habit {
@@ -74,4 +76,20 @@ model HabitCheckIn {
   @@unique([userId, habitId, day])
   @@index([userId, day])
   @@index([habitId, day])
+}
+
+model Category {
+  id         String    @id @default(cuid())
+  userId     String?   // null for global categories, user id for user-owned
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  isArchived Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  expenses   Expense[]
+
+  // Global categories are unique by name
+  // User categories are unique per user by (userId, name)
+  @@unique([userId, name])
+  @@index([userId])
 }
