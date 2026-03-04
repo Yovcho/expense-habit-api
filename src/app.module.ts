@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { ExpensesModule } from './modules/expenses/expenses.module';
 import { HabitsModule } from './modules/habits/habits.module';
+import { CheckinsModule } from './modules/checkins/checkins.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { HabitsModule } from './modules/habits/habits.module';
     UsersModule,
     ExpensesModule,
     HabitsModule,
+    CheckinsModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
